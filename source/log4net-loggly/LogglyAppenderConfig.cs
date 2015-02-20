@@ -1,3 +1,5 @@
+using System;
+
 namespace log4net.loggly
 {
 	public class LogglyAppenderConfig: ILogglyAppenderConfig
@@ -9,15 +11,7 @@ namespace log4net.loggly
 			set
 			{
 				//TODO: validate http and uri
-				_rootUrl = value;
-				if (!_rootUrl.EndsWith("/"))
-				{
-					_rootUrl += "/";
-				}
-				if (!_rootUrl.EndsWith("inputs/"))
-				{
-					_rootUrl += "inputs/";
-				}
+				 _rootUrl = BuildUrl(value);
 			}
 		}
 
@@ -26,11 +20,33 @@ namespace log4net.loggly
 		public string UserAgent { get; set; }
 
 		public int TimeoutInSeconds { get; set; }
+	    public void VerifyUrl()
+	    {
+            if (!_rootUrl.EndsWith("tag/") && !String.IsNullOrEmpty(Tags))
+            {
+                _rootUrl += "/tag/{1}";
+            }
+	    }
+
+	    public string Tags { get; set; }
 
 		public LogglyAppenderConfig()
 		{
 			UserAgent = "loggly-log4net-appender";
 			TimeoutInSeconds = 30;
 		}
+
+	    private string BuildUrl(string rootUrl)
+	    {
+            if (!rootUrl.EndsWith("/"))
+            {
+                rootUrl += "/";
+            }
+            if (!rootUrl.EndsWith("inputs/"))
+            {
+                rootUrl += "inputs/{0}";
+            }
+	        return rootUrl;
+	    }
 	}
 }

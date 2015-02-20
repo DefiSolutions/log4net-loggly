@@ -12,6 +12,8 @@ namespace log4net.loggly
 
 		private ILogglyAppenderConfig Config = new LogglyAppenderConfig();
 
+        public string EventType { get; set; }
+
 		public string RootUrl { set { Config.RootUrl = value; } }
 		public string InputKey { set { Config.InputKey = value; } }
 		public string UserAgent { set { Config.UserAgent = value; } }
@@ -25,7 +27,7 @@ namespace log4net.loggly
 
 		protected override void SendBuffer(LoggingEvent[] loggingEvents)
 		{
-			Client.Send(Config, Config.InputKey, Formatter.ToJson(loggingEvents));
+            Client.Send(Config, Config.InputKey, Formatter.ToJson(loggingEvents, EventType));
 		}
 	}
 }

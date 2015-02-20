@@ -10,17 +10,25 @@ namespace log4net.loggly
 		public static ILogglyFormatter Formatter = new LogglyFormatter();
 		public static ILogglyClient Client = new LogglyClient();
 
-		private ILogglyAppenderConfig Config = new LogglyAppenderConfig();
+		protected ILogglyAppenderConfig Config = new LogglyAppenderConfig();
 
-		public string RootUrl { set { Config.RootUrl = value; } }
-		public string InputKey { set { Config.InputKey = value; } }
-		public string UserAgent { set { Config.UserAgent = value; } }
-		public int TimeoutInSeconds { set { Config.TimeoutInSeconds = value; } }
+        public string EventType { get; set; }
+		public virtual string RootUrl { set { Config.RootUrl = value; } }
+        public virtual string InputKey { set { Config.InputKey = value; } }
+        public virtual string UserAgent { set { Config.UserAgent = value; } }
+        public virtual int TimeoutInSeconds { set { Config.TimeoutInSeconds = value; } }
+        public virtual string Tags { set { Config.Tags = value; } }
 
-		protected override void Append(LoggingEvent loggingEvent)
+	    public override void ActivateOptions()
+	    {
+	        base.ActivateOptions();
+            Config.VerifyUrl();
+	    }
+
+	    protected override void Append(LoggingEvent loggingEvent)
 		{
-			Formatter.AppendAdditionalLoggingInformation(Config, loggingEvent);
-			Client.Send(Config, Config.InputKey, Formatter.ToJson(loggingEvent));
+            Formatter.AppendAdditionalLoggingInformation(Config, loggingEvent);
+			Client.Send(Config, Config.InputKey, Formatter.ToJson(loggingEvent, EventType));
 		}
 	}
 }

@@ -9,7 +9,7 @@ namespace log4net.loggly
 {
 	public class LogglyFormatter : ILogglyFormatter
 	{
-		private Process _currentProcess;
+		protected Process _currentProcess;
 
 		public LogglyFormatter()
 		{
@@ -20,17 +20,17 @@ namespace log4net.loggly
 		{
 		}
 
-		public virtual string ToJson(LoggingEvent loggingEvent)
+        public virtual string ToJson(LoggingEvent loggingEvent, string eventType)
 		{
-			return PreParse(loggingEvent).ToJson();
+            return PreParse(loggingEvent, eventType).ToJson();
 		}
 
-		public virtual string ToJson(IEnumerable<LoggingEvent> loggingEvents)
+        public virtual string ToJson(IEnumerable<LoggingEvent> loggingEvents, string eventType)
 		{
-			return loggingEvents.Select(PreParse).ToJson();
+            return loggingEvents.Select(e => PreParse(e, eventType)).ToJson();
 		}
 
-		private object PreParse(LoggingEvent loggingEvent)
+        protected virtual object PreParse(LoggingEvent loggingEvent, string eventType)
 		{
 			var exceptionString = loggingEvent.GetExceptionString();
 			if (string.IsNullOrWhiteSpace(exceptionString))
@@ -46,6 +46,7 @@ namespace log4net.loggly
 						thread = loggingEvent.ThreadName,
 						message = loggingEvent.MessageObject,
 						ex = exceptionString,
+                        type = eventType
 			       	};
 		}
 	}
